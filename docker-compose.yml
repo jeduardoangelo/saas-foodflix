@@ -16,7 +16,8 @@ services:
       - DB_USERNAME=${DB_USERNAME:-foodflix}
       - DB_PASSWORD=${DB_PASSWORD:-foodflix}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - foodflix
 
@@ -47,6 +48,11 @@ services:
       - "3306:3306"
     volumes:
       - foodflix_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - foodflix
 
