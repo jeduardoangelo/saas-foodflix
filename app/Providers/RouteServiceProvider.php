@@ -70,13 +70,25 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('admin-login', function (Request $request) {
             return Limit::perMinute(5)->by(
                 Str::lower((string) $request->input('email')).'|'.$request->ip()
-            );
+            )->response(function (Request $request, array $headers) {
+                return response(
+                    'Muitas tentativas de login. Aguarde um minuto e tente novamente.',
+                    429,
+                    $headers
+                );
+            });
         });
 
         RateLimiter::for('client-login', function (Request $request) {
             return Limit::perMinute(5)->by(
                 Str::lower((string) $request->input('email')).'|'.$request->ip()
-            );
+            )->response(function (Request $request, array $headers) {
+                return response(
+                    'Muitas tentativas de login. Aguarde um minuto e tente novamente.',
+                    429,
+                    $headers
+                );
+            });
         });
     }
 }

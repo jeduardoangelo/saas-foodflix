@@ -148,7 +148,9 @@ class AdminLoginTest extends TestCase
             $this->post('/admin/login', $payload)->assertStatus(302);
         }
 
-        $this->post('/admin/login', $payload)->assertStatus(429);
+        $this->post('/admin/login', $payload)
+            ->assertStatus(429)
+            ->assertSee('Muitas tentativas de login. Aguarde um minuto e tente novamente.');
     }
 
     private function createAdmin(string $email, string $password): Admin

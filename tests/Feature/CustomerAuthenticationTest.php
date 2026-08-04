@@ -17,6 +17,7 @@ class CustomerAuthenticationTest extends TestCase
     {
         RateLimiter::clear('cliente@example.com|127.0.0.1');
         RateLimiter::clear('desconhecido@example.com|127.0.0.1');
+        RateLimiter::clear('rate-limit-client@example.com|127.0.0.1');
 
         parent::tearDown();
     }
@@ -34,7 +35,8 @@ class CustomerAuthenticationTest extends TestCase
             ->assertSee('Crie sua Conta')
             ->assertSee('Dados Pessoais')
             ->assertSee('Endereço de Entrega')
-            ->assertSee('Segurança');
+            ->assertSee('Segurança')
+            ->assertSee('Política de Privacidade');
     }
 
     public function test_customer_registration_creates_user_and_default_address_and_authenticates(): void
@@ -106,6 +108,31 @@ class CustomerAuthenticationTest extends TestCase
         $response->assertSessionHasErrors(['cpf', 'password', 'street']);
         $this->assertGuest('web');
         $this->assertDatabaseMissing('users', ['email' => 'cliente@example.com']);
+    }
+
+    public function test_registration_requires_privacy_consent(): void
+    {
+        $data = $this->validRegistrationData();
+        unset($data['privacy_accepted']);
+
+        $this->from('/register')->post('/register', $data)
+            ->assertRedirect('/register')
+            ->assertSessionHasErrors([
+                'privacy_accepted' => 'Você precisa aceitar a Política de Privacidade para criar sua conta.',
+            ]);
+
+        $this->assertDatabaseMissing('users', ['email' => 'cliente@example.com']);
+    }
+
+    public function test_privacy_policy_is_public(): void
+    {
+        $this->get('/privacidade')
+            ->assertOk()
+            ->assertSee('Política de Privacidade')
+            ->assertSee('CPF')
+            ->assertSee('endereço')
+            ->assertSee('telefone')
+            ->assertSee('gateway de pagamento');
     }
 
     public function test_registration_rejects_duplicate_email_and_cpf_with_clear_messages(): void
@@ -201,6 +228,22 @@ class CustomerAuthenticationTest extends TestCase
         $this->actingAs($user, 'web')->get('/register')->assertRedirect('/');
     }
 
+    public function test_customer_login_is_rate_limited_by_email_and_ip(): void
+    {
+        $payload = [
+            'email' => 'RATE-LIMIT-CLIENT@example.com',
+            'password' => 'invalid-password',
+        ];
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $this->post('/login', $payload)->assertStatus(302);
+        }
+
+        $this->post('/login', $payload)
+            ->assertStatus(429)
+            ->assertSee('Muitas tentativas de login. Aguarde um minuto e tente novamente.');
+    }
+
     private function validRegistrationData(): array
     {
         return [
@@ -214,6 +257,7 @@ class CustomerAuthenticationTest extends TestCase
             'complement' => 'Apto 12',
             'password' => 'senha-segura',
             'password_confirmation' => 'senha-segura',
+            'privacy_accepted' => '1',
         ];
     }
 }

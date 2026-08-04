@@ -22,6 +22,7 @@ Route::post('/logout', [LoginController::class, 'destroy'])
     ->name('site.logout');
 
 Route::get('/', [CatalogController::class, 'index'])->name('site.home');
+Route::view('/privacidade', 'site.privacy')->name('site.privacy');
 Route::get('/cart', [CartController::class, 'index'])->name('site.cart.index');
 Route::post('/cart/items/{product}', [CartController::class, 'store'])
     ->where('product', '[0-9]+')

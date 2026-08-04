@@ -26,6 +26,9 @@
     .auth-links a { color: var(--primary); font-weight: 700; text-decoration: none; }
     .auth-links a:hover { text-decoration: underline; }
     .required-note { margin: 18px 0 0; color: #8b919b; font-size: 11px; }
+    .privacy-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 24px; color: #4b5563; font-size: 13px; line-height: 1.5; }
+    .privacy-consent input { width: 17px; height: 17px; margin-top: 1px; accent-color: var(--primary); }
+    .privacy-consent a { color: var(--primary); font-weight: 700; }
 
     @media (max-width: 650px) {
         .auth-page { padding-top: 30px; }

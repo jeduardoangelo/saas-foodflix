@@ -45,6 +45,7 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
+            'dump_binary' => env('MYSQLDUMP_BINARY', 'mysqldump'),
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),

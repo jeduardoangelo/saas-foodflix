@@ -40,6 +40,21 @@ Esse seeder usa valores temporários para CNPJ, endereço físico e horário de
 funcionamento. Eles devem ser substituídos pela tela de Configurações antes de
 colocar a aplicação em produção.
 
+## Backup manual do banco de dados
+
+O ambiente que executa o PHP precisa ter o binário `mysqldump` disponível. Se
+ele estiver em outro caminho, configure `MYSQLDUMP_BINARY` no `.env`. Para criar
+um backup do banco MySQL configurado pela conexão padrão, execute:
+
+```bash
+php artisan backup:database
+```
+
+O arquivo é salvo em `storage/app/backups/` com data e hora no nome. A senha do
+banco é transmitida ao processo pelo ambiente e não aparece na linha de comando.
+O agendamento automático ainda não está configurado: ele deverá ser criado e
+monitorado na infraestrutura assim que a hospedagem de produção for definida.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

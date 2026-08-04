@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Services\Cart\CartService;
 use App\Services\Payment\FakePaymentGateway;
+use App\Services\Payment\LoggingPaymentGateway;
 use App\Services\Payment\PaymentGatewayInterface;
 use InvalidArgumentException;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,8 +24,10 @@ class AppServiceProvider extends ServiceProvider
             $driver = config('services.payment.driver');
 
             if ($driver === 'fake') {
-                return new FakePaymentGateway(
-                    (bool) config('services.payment.fake.approved', true)
+                return new LoggingPaymentGateway(
+                    new FakePaymentGateway(
+                        (bool) config('services.payment.fake.approved', true)
+                    )
                 );
             }
 
@@ -38,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         View::composer('site.layouts.app', function ($view) {
             $view->with('cartSummary', app(CartService::class)->summary());
         });

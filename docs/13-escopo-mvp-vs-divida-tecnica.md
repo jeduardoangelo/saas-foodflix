@@ -35,6 +35,9 @@ Nenhum desses itens tem tela própria nos prints, mas todos são **bloqueadores 
 | Sem cancelamento de pedido pelo cliente | Não estava nos prints; cancelamento é só via admin por ora | Se o volume de pedidos errados/cancelados gerar carga operacional alta demais para o admin lidar manualmente |
 | Sem múltiplos papéis de admin (dono vs. operador de cozinha) | Um único perfil administrativo é suficiente para uma operação pequena | Quando a lanchonete tiver equipe grande o suficiente para precisar restringir o que cada funcionário pode ver/editar |
 | Sem auditoria de alterações em Configurações da Loja | Baixo risco para uma única loja controlada pelo próprio dono | Se mais de uma pessoa tiver acesso de admin e for necessário rastrear "quem mudou a taxa de entrega" |
+| Agendamento automático do backup do banco | O comando manual `php artisan backup:database` está disponível, mas o mecanismo de agendamento depende da infraestrutura de produção | Assim que a hospedagem for escolhida, configurar e monitorar cron/scheduler diário antes de colocar a aplicação em produção |
+
+O backup manual é apenas a preparação operacional. O agendamento e o monitoramento de sua execução continuam explicitamente pendentes e são bloqueadores para produção até a definição da hospedagem.
 
 ## Observação geral
 

@@ -8,7 +8,6 @@ use App\Models\StoreSetting;
 use App\Services\Cart\CartService;
 use App\Services\Payment\PaymentGatewayInterface;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class CheckoutService
@@ -65,13 +64,6 @@ class CheckoutService
         $paymentResult = $this->gateway->charge($order);
 
         if (! $paymentResult->successful()) {
-            Log::warning('Pagamento recusado no checkout.', [
-                'order_number' => $order->order_number,
-                'gateway' => $paymentResult->gateway(),
-                'gateway_transaction_id' => $paymentResult->transactionId(),
-                'payment_method' => $order->payment_method,
-            ]);
-
             throw new PaymentFailedException(
                 $paymentResult->message() ?: 'Não foi possível aprovar o pagamento. Tente novamente.'
             );

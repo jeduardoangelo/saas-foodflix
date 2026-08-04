@@ -40,6 +40,7 @@ class RegisterCustomerRequest extends FormRequest
             'city' => ['required', 'string', 'max:100'],
             'complement' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'privacy_accepted' => ['accepted'],
         ];
     }
 
@@ -60,6 +61,7 @@ class RegisterCustomerRequest extends FormRequest
             'password.required' => 'Informe uma senha.',
             'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
             'password.confirmed' => 'A confirmação da senha não corresponde.',
+            'privacy_accepted.accepted' => 'Você precisa aceitar a Política de Privacidade para criar sua conta.',
         ];
     }
 }

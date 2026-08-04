@@ -84,6 +84,14 @@
                     </div>
                 </section>
 
+                <div class="privacy-consent">
+                    <input id="privacy_accepted" name="privacy_accepted" type="checkbox" value="1" required {{ old('privacy_accepted') ? 'checked' : '' }} @if ($errors->has('privacy_accepted')) aria-invalid="true" @endif>
+                    <label for="privacy_accepted">
+                        Li e aceito a <a href="{{ route('site.privacy') }}" target="_blank" rel="noopener">Política de Privacidade</a>.
+                    </label>
+                </div>
+                @error('privacy_accepted') <p class="field-error">{{ $message }}</p> @enderror
+
                 <p class="required-note">Todos os campos são obrigatórios, exceto o complemento.</p>
                 <div class="auth-actions">
                     <button class="auth-submit" type="submit">Criar minha conta</button>

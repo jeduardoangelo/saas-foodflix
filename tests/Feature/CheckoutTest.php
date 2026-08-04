@@ -10,12 +10,15 @@ use App\Models\Product;
 use App\Models\StoreSetting;
 use App\Models\User;
 use App\Services\Payment\FakePaymentGateway;
+use App\Services\Payment\LoggingPaymentGateway;
 use App\Services\Payment\PaymentGatewayInterface;
 use App\Services\Payment\PaymentResult;
 use Database\Seeders\StoreSettingSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Log;
 use LogicException;
+use Mockery;
+use Psr\Log\LoggerInterface;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
@@ -141,9 +144,18 @@ class CheckoutTest extends TestCase
     {
         $this->prepareStoreSettings('7.50');
         $this->app->bind(PaymentGatewayInterface::class, function () {
-            return new FakePaymentGateway(false);
+            return new LoggingPaymentGateway(new FakePaymentGateway(false));
         });
-        Log::spy();
+        $paymentLogger = Mockery::mock(LoggerInterface::class);
+        $paymentLogger->shouldReceive('error')->once()->withArgs(function ($message, $context) {
+            return $message === 'Falha na cobrança do pedido.'
+                && array_keys($context) === ['order_id', 'order_number', 'gateway', 'message']
+                && $context['order_id'] === null
+                && strpos($context['order_number'], 'FF') === 0
+                && $context['gateway'] === 'fake'
+                && $context['message'] === 'O pagamento foi recusado. Revise a forma de pagamento e tente novamente.';
+        });
+        Log::shouldReceive('channel')->once()->with('payments')->andReturn($paymentLogger);
         $user = $this->createUser();
         $product = $this->createProduct('Produto Recusado', '25.00');
 
@@ -160,11 +172,6 @@ class CheckoutTest extends TestCase
         $this->assertSame(0, Order::count());
         $this->assertSame(0, OrderItem::count());
         $this->assertSame(0, Payment::count());
-        Log::shouldHaveReceived('warning')->once()->withArgs(function ($message, $context) {
-            return $message === 'Pagamento recusado no checkout.'
-                && $context['gateway'] === 'fake'
-                && strpos($context['gateway_transaction_id'], 'fake_') === 0;
-        });
     }
 
     public function test_pickup_has_no_address_snapshot_or_delivery_fee(): void
