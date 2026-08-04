@@ -109,14 +109,6 @@ class CheckoutService
         return $order->load(['items', 'payment']);
     }
 
-    public function findForUser(int $orderId, User $user): Order
-    {
-        return Order::query()
-            ->where('user_id', $user->id)
-            ->with(['items', 'payment'])
-            ->findOrFail($orderId);
-    }
-
     private function requireCart(): array
     {
         $cart = $this->cart->summary();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\CheckoutRequest;
+use App\Models\Order;
 use App\Services\Catalog\CatalogService;
 use App\Services\Order\CheckoutService;
 use App\Services\Order\EmptyCartException;
@@ -52,10 +53,12 @@ class CheckoutController extends Controller
         return redirect()->route('site.checkout.success', $order);
     }
 
-    public function success(Request $request, int $order): View
+    public function success(Order $order): View
     {
+        $this->authorize('view', $order);
+
         return view('site.checkout.success', [
-            'order' => $this->checkout->findForUser($order, $request->user('web')),
+            'order' => $order->load(['items', 'payment']),
             'navigationCategories' => $this->catalog->navigationCategories(),
         ]);
     }

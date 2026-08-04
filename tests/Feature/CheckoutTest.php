@@ -134,7 +134,7 @@ class CheckoutTest extends TestCase
         $this->actingAs($user, 'web')->get("/checkout/success/{$order->id}")
             ->assertOk()
             ->assertSee($order->order_number);
-        $this->actingAs($otherUser, 'web')->get("/checkout/success/{$order->id}")->assertNotFound();
+        $this->actingAs($otherUser, 'web')->get("/checkout/success/{$order->id}")->assertForbidden();
     }
 
     public function test_declined_payment_logs_failure_creates_no_records_and_keeps_cart(): void

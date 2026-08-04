@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\StoreSettingController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,10 @@ Route::middleware('guest:admin')->group(function () {
 Route::middleware('auth:admin')->group(function () {
     Route::redirect('/', '/admin/dashboard')->name('index');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orders', [DashboardController::class, 'index'])->name('orders.index');
+    Route::patch('/orders/{order}/advance', [OrderStatusController::class, 'advance'])
+        ->where('order', '[0-9]+')
+        ->name('orders.advance');
     Route::patch('/products/{product}/toggle', [ProductController::class, 'toggle'])
         ->name('products.toggle');
     Route::resource('/products', ProductController::class)->except('show');

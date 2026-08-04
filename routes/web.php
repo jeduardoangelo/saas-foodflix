@@ -5,6 +5,7 @@ use App\Http\Controllers\Site\Auth\LoginController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\CartController;
 use App\Http\Controllers\Site\CheckoutController;
+use App\Http\Controllers\Site\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:web')->group(function () {
@@ -38,6 +39,9 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])
         ->where('order', '[0-9]+')
         ->name('site.checkout.success');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])
+        ->where('order', '[0-9]+')
+        ->name('site.orders.show');
 });
 
 Route::get('/products/{product}', [CatalogController::class, 'show'])

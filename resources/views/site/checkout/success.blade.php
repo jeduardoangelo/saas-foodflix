@@ -15,7 +15,9 @@
     .success-summary { margin: 0 0 24px; text-align: left; }
     .success-row { display: flex; justify-content: space-between; gap: 20px; padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 12px; }
     .success-row strong { color: var(--text); }
+    .success-actions { display: grid; gap: 9px; }
     .success-actions a { min-height: 44px; display: grid; place-items: center; border-radius: 9px; background: var(--primary); color: white; font-size: 13px; font-weight: 800; text-decoration: none; }
+    .success-actions a.secondary { border: 1px solid var(--border); background: white; color: var(--text); }
     @media (max-width: 520px) { .success-card { padding: 28px 19px; } }
 </style>
 @endpush
@@ -40,7 +42,8 @@
             </div>
 
             <div class="success-actions">
-                <a href="{{ route('site.home') }}">Voltar ao Cardápio</a>
+                <a href="{{ route('site.orders.show', $order) }}">Acompanhar Pedido</a>
+                <a class="secondary" href="{{ route('site.home') }}">Voltar ao Cardápio</a>
             </div>
         </div>
     </section>
