@@ -65,6 +65,8 @@ foodflix/
 - **Snapshots de dados históricos:** como definido no modelo de dados, `order_items` e `orders` guardam cópias imutáveis (`product_name_snapshot`, `unit_price_snapshot`, `delivery_address_snapshot`) — nunca fazer `join` para buscar preço/endereço atual ao exibir um pedido já concluído.
 - **Configuração de serviços externos:** sempre via `config('services.<nome>.<chave>')`, populado a partir de `.env` — nunca hardcoded, nunca em JSON versionado.
 - **Guards separados:** rotas de admin sempre sob middleware `auth:admin` e prefixo `/admin`; rotas de cliente sob `auth:web` quando aplicável.
+- **Drivers de autenticação:** os guards `web` e `admin` usam sessão e providers Eloquent separados. O pacote `tymon/jwt-auth` permanece sem uso no fluxo web; futuramente será utilizado somente por um guard `api` dedicado à integração com aplicativo mobile.
+- **Configuração singleton da loja:** todo acesso a `store_settings` deve passar por `StoreSetting::current()`, que retorna exclusivamente a linha de `id=1` e nunca cria dados automaticamente. Se a linha não existir, execute `php artisan db:seed --class=StoreSettingSeeder`. Features futuras não devem chamar `StoreSetting::create()` diretamente. Os valores de CNPJ, endereço e horário criados pelo seeder são placeholders e precisam ser substituídos pela tela de Configurações antes da produção.
 - **Nomenclatura:** tabelas em snake_case plural, Models em PascalCase singular (padrão Laravel).
 
 ## 4. O que este documento **não** cobre (não aplicável)

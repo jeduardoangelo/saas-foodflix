@@ -7,6 +7,39 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Configuração inicial do Foodflix
+
+Antes de criar o primeiro administrador, defina no `.env` local:
+
+```dotenv
+ADMIN_SEED_EMAIL=admin@example.com
+ADMIN_SEED_PASSWORD=uma-senha-local-segura
+```
+
+Não use os placeholders de `.env.example`. O seeder falha explicitamente
+quando as variáveis estão ausentes, vazias ou ainda contêm os placeholders,
+evitando a criação de um administrador com senha vazia ou padrão.
+
+Depois de configurar as variáveis, execute:
+
+```bash
+php artisan db:seed --class=AdminSeeder
+```
+
+O administrador é salvo na tabela `admins`, com a senha protegida pelo hash
+configurado pelo Laravel. O nome inicial é `Administrador` e pode ser alterado
+posteriormente pela aplicação.
+
+Inicialize também a linha singleton de configurações da loja:
+
+```bash
+php artisan db:seed --class=StoreSettingSeeder
+```
+
+Esse seeder usa valores temporários para CNPJ, endereço físico e horário de
+funcionamento. Eles devem ser substituídos pela tela de Configurações antes de
+colocar a aplicação em produção.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

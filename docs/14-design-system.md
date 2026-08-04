@@ -1,6 +1,6 @@
 # Foodflix — Design System
 
-> Documento 14 de N. Extraído dos prints de referência enviados (site do cliente e painel admin, marca de exemplo "Comidaflix"). Como o Foodflix é single-tenant (documento 1), este design system **não precisa ser white label/tokens trocáveis por cliente** — é a identidade visual definitiva do produto, não uma base multi-marca.
+> Documento 14 de N. Extraído dos prints de referência enviados para a marca "Foodflix". Como o Foodflix é single-tenant (documento 1), este design system **não precisa ser white label/tokens trocáveis por cliente** — é a identidade visual definitiva do produto, não uma base multi-marca.
 
 ## 1. Paleta de Cores
 

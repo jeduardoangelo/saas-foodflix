@@ -4,7 +4,7 @@
 
 ## 1. Visão Geral
 
-O Foodflix é um SaaS de pedidos de comida para uma lanchonete própria (comercializada com a marca "Comidaflix" nas telas de exemplo). O sistema é composto por dois módulos:
+O Foodflix é um SaaS de pedidos de comida para uma lanchonete própria, comercializada com a marca "Foodflix". O sistema é composto por dois módulos:
 
 - **Site do cliente** — onde o consumidor final navega o cardápio (lanches, pizzas, pastéis, sobremesas, bebidas), monta o carrinho e finaliza o pedido.
 - **Painel Administrativo** — onde o dono/operador da lanchonete acompanha pedidos em tempo real, gerencia o catálogo de produtos e configura dados da loja.

@@ -82,22 +82,25 @@ falhou porque o serviço `db` não estava operacional. A mensagem inicial indica
 
 ---
 
-## 2. O que ficou faltando
+## 2. Pendências encerradas
 
-### 2.1. Garantia rígida de singleton para `store_settings`
+### 2.1. Singleton de `store_settings`
 
-A tabela e o model foram criados, mas o banco ainda não impede diretamente a existência de mais de uma linha.
+**Resolvido:** `StoreSettingSeeder` cria somente a linha de `id=1` por
+`firstOrCreate`, com os valores iniciais definidos para o projeto. CNPJ,
+endereço e horário são placeholders explicitamente documentados e devem ser
+substituídos pela tela de Configurações antes da produção.
 
-A documentação informa que haverá uma única linha e que seu ID será `1` na prática, mas não define:
+`StoreSetting::current()` nunca cria registros. O método retorna a linha de
+`id=1` ou lança uma exceção orientando a executar:
 
-- valores iniciais para um seeder;
-- uma constraint específica de singleton;
-- o comportamento caso a linha seja excluída;
-- se o model deve bloquear `create()` após o primeiro registro.
+```bash
+php artisan db:seed --class=StoreSettingSeeder
+```
 
-Adicionar uma coluna auxiliar ou uma regra automática sem essa definição inventaria comportamento que não está na spec.
-
-**Pendente para decisão:** definir se o singleton será garantido por seeder + `updateOrCreate(['id' => 1])`, por uma camada de serviço ou também por constraint no banco.
+A convenção de nunca chamar `StoreSetting::create()` diretamente está
+registrada em `docs/03-arquitetura-tecnica.md`. Não foi adicionada constraint
+de singleton no banco, conforme a decisão do projeto.
 
 ---
 
@@ -108,25 +111,27 @@ Os guards estão separados:
 - `web` usa o provider `users`;
 - `admin` usa o provider `admins`.
 
-Ambos estão configurados atualmente com o driver `session`, seguindo a configuração Laravel já existente. A arquitetura também cita `tymon/jwt-auth`, mas não determina nesta etapa se os dois guards devem usar JWT nem como os tokens serão separados.
-
-**Pendente para a etapa de autenticação:** confirmar se o site e o painel usarão sessão, JWT ou uma combinação dos dois e ajustar os drivers conforme a feature de login.
+**Resolvido:** ambos usam o driver `session`, com providers Eloquent separados.
+O pacote `tymon/jwt-auth` permanece instalado, mas será usado futuramente
+somente por um guard `api` dedicado ao aplicativo mobile.
 
 ---
 
-### 2.3. Hash automático de senha não foi implementado nos models
+### 2.3. Criação segura do primeiro administrador
 
-O documento de dívida técnica determina que senhas de clientes e administradores sejam sempre armazenadas com bcrypt ou Argon2. Nesta etapa não existem fluxos de cadastro, login, controllers, requests ou services.
+**Resolvido para a fundação:** `AdminSeeder` exige `ADMIN_SEED_EMAIL` e
+`ADMIN_SEED_PASSWORD`, rejeita valores ausentes, vazios ou placeholders, e usa
+`Hash::make()` antes de persistir a senha. O comportamento está coberto por
+testes automatizados.
 
-O Laravel 8 também não possui o cast moderno `hashed`.
-
-**Pendente para as features de autenticação:** aplicar `Hash::make()` antes de persistir senhas e adicionar testes que comprovem que texto puro nunca chega ao banco.
+Os fluxos futuros de cadastro e alteração de senha continuam obrigados a
+aplicar hash em suas respectivas Services; eles permanecem fora desta etapa.
 
 ---
 
 ### 2.4. Testes específicos de schema e models
 
-A suíte existente possui somente os dois testes de exemplo do Laravel. Ambos passaram, mas ainda não há testes automatizados próprios para:
+**Resolvido:** a suíte agora cobre:
 
 - nomes e tipos das colunas;
 - constraints únicas;
@@ -135,11 +140,8 @@ A suíte existente possui somente os dois testes de exemplo do Laravel. Ambos pa
 - relacionamentos Eloquent;
 - soft deletes de `users` e `products`;
 - separação entre os providers `users` e `admins`;
-- comportamento singleton de `store_settings`.
-
-O schema foi conferido diretamente no `information_schema` do MySQL durante esta implementação, mas essa validação ainda não está registrada como teste repetível no repositório.
-
-**Pendente recomendado:** criar testes de integração do schema e testes unitários dos models antes das próximas features dependerem dessas entidades.
+- comportamento singleton de `store_settings`;
+- falha segura e hash do `AdminSeeder`.
 
 ---
 
@@ -156,17 +158,14 @@ Os models `Order` e `OrderItem` não existem ainda, pois foram explicitamente ex
 
 ---
 
-### 2.6. Seeder inicial
+### 2.6. Seeders iniciais
 
-Não foram criados registros iniciais para:
+**Resolvido para os dados globais:** foram criados `AdminSeeder` e
+`StoreSettingSeeder`, ambos registrados em `DatabaseSeeder`.
 
-- categorias;
-- administrador;
-- configurações da loja.
-
-Isso não foi solicitado na etapa de fundação e a documentação não fornece credenciais nem todos os valores concretos necessários.
-
-**Pendente:** criar seeders quando os dados iniciais e a estratégia segura para a senha do primeiro administrador forem definidos.
+Categorias ainda não possuem seeder porque seu catálogo inicial não foi
+definido como parte desta etapa. Isso não bloqueia a fundação e será tratado
+na Gestão de Produtos.
 
 ---
 
@@ -194,15 +193,11 @@ Os itens abaixo não são falhas da fundação; ficaram de fora por solicitaçã
 - Uma instalação limpa das migrations foi validada em banco isolado.
 - Tipos, tamanhos, nulabilidade, defaults, índices únicos e chaves estrangeiras foram conferidos.
 - Todos os arquivos PHP modificados passaram no lint.
-- A suíte atual terminou com `2 passed`.
+- A suíte ampliada terminou com `15 passed`.
 - O banco temporário usado na validação foi removido.
 
-## 5. Próximas decisões recomendadas
+## 5. Próximo passo
 
-Antes da implementação do login de administrador:
-
-1. Corrigir definitivamente as credenciais do Docker para o MySQL iniciar sem overrides.
-2. Confirmar o driver dos guards: sessão ou JWT.
-3. Definir como será criado o primeiro administrador sem versionar uma senha real.
-4. Definir a estratégia de singleton de `store_settings`.
-5. Adicionar testes automatizados para o schema e os relacionamentos já criados.
+As pendências da Fundação de Dados estão encerradas. A próxima etapa da
+ordem de execução é o Login de Administrador, sem controllers, rotas ou telas
+antecipados nesta fundação.

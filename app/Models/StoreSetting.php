@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use RuntimeException;
 
 class StoreSetting extends Model
 {
@@ -32,4 +33,17 @@ class StoreSetting extends Model
         'delivery_fee' => 'decimal:2',
         'estimated_delivery_minutes' => 'integer',
     ];
+
+    public static function current(): self
+    {
+        $storeSetting = static::find(1);
+
+        if ($storeSetting === null) {
+            throw new RuntimeException(
+                'Store settings are not initialized. Run "php artisan db:seed --class=StoreSettingSeeder".'
+            );
+        }
+
+        return $storeSetting;
+    }
 }
