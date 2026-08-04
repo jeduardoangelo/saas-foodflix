@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Site\CatalogController;
 use App\Http\Controllers\Site\Auth\LoginController;
+use App\Http\Controllers\Site\Auth\PasswordResetController;
 use App\Http\Controllers\Site\Auth\RegisterController;
 use App\Http\Controllers\Site\CartController;
 use App\Http\Controllers\Site\CheckoutController;
@@ -15,6 +16,10 @@ Route::middleware('guest:web')->group(function () {
         ->name('site.login.store');
     Route::get('/register', [RegisterController::class, 'create'])->name('site.register');
     Route::post('/register', [RegisterController::class, 'store'])->name('site.register.store');
+    Route::get('/forgot-password', [PasswordResetController::class, 'requestForm'])->name('site.password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendLink'])->name('site.password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'resetForm'])->name('site.password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('site.password.update');
 });
 
 Route::post('/logout', [LoginController::class, 'destroy'])
@@ -35,6 +40,7 @@ Route::delete('/cart/items/{product}', [CartController::class, 'destroy'])
     ->name('site.cart.items.destroy');
 
 Route::middleware('auth:web')->group(function () {
+    Route::get('/orders', [OrderController::class, 'index'])->name('site.orders.index');
     Route::get('/checkout', [CheckoutController::class, 'create'])->name('site.checkout.create');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('site.checkout.store');
     Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])

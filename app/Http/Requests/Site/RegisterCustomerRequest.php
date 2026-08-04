@@ -25,6 +25,7 @@ class RegisterCustomerRequest extends FormRequest
             'name' => trim(preg_replace('/\s+/', ' ', (string) $this->input('name'))),
             'cpf' => $cpf,
             'email' => mb_strtolower(trim((string) $this->input('email'))),
+            'phone' => trim((string) $this->input('phone')),
         ]);
     }
 
@@ -34,6 +35,7 @@ class RegisterCustomerRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', 'regex:/^\S+(?:\s+\S+)+$/u'],
             'cpf' => ['required', 'string', new Cpf(), Rule::unique('users', 'cpf')],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
+            'phone' => ['required', 'string', 'regex:/^\([1-9]{2}\)\s?(?:9\d{4}|[2-8]\d{3})-\d{4}$/'],
             'street' => ['required', 'string', 'max:255'],
             'number' => ['required', 'string', 'max:20'],
             'neighborhood' => ['required', 'string', 'max:100'],
@@ -54,6 +56,8 @@ class RegisterCustomerRequest extends FormRequest
             'email.required' => 'Informe o email.',
             'email.email' => 'Informe um email válido.',
             'email.unique' => 'Este email já está cadastrado.',
+            'phone.required' => 'Informe o telefone com DDD.',
+            'phone.regex' => 'Informe um telefone brasileiro válido com DDD.',
             'street.required' => 'Informe a rua ou avenida.',
             'number.required' => 'Informe o número.',
             'neighborhood.required' => 'Informe o bairro.',

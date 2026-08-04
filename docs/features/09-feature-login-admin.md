@@ -29,6 +29,6 @@ Garantir acesso seguro e isolado ao painel administrativo, separado da autentica
 - [ ] Mensagens de erro não revelam se o email existe ou não
 
 ## Fora de escopo
-- Fluxo de "Esqueceu sua senha?" (visível no print, mesma decisão do documento 4 — fica para iteração seguinte)
+- Recuperação de senha — passou a ser coberta pelo documento 17-feature-recuperacao-senha.md
 - Múltiplos níveis de permissão de admin (ex: admin master vs. operador de cozinha) — no MVP existe um único papel de administrador (documento 1, Personas)
 - Autenticação de dois fatores

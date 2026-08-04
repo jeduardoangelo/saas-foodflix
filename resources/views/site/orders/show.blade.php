@@ -116,7 +116,7 @@
                         <div class="detail-row total-row"><span>Total</span><strong>R$ {{ number_format((float) $order->total, 2, ',', '.') }}</strong></div>
                     </div>
                 </section>
-                <a class="back-link" href="{{ route('site.home') }}">Voltar ao Cardápio</a>
+                <a class="back-link" href="{{ route('site.orders.index') }}">Voltar aos Meus Pedidos</a>
             </aside>
         </div>
     </section>

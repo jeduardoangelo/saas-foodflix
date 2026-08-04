@@ -67,6 +67,12 @@
         .header-icon { width: 41px; height: 41px; position: relative; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #4b5563; cursor: pointer; text-decoration: none; }
         .header-icon:hover { background: var(--primary-soft); color: var(--primary); }
         .header-icon svg { width: 21px; height: 21px; }
+        .account-wrap { position: relative; }
+        .account-menu { min-width: 185px; position: absolute; top: 49px; right: 0; display: none; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #fff; box-shadow: 0 15px 35px rgba(31,41,55,.15); }
+        .account-menu.open { display: block; }
+        .account-menu a, .account-menu button { width: 100%; min-height: 42px; display: flex; align-items: center; padding: 0 15px; border: 0; background: #fff; color: #4b5563; cursor: pointer; font-size: 12px; font-weight: 700; text-align: left; text-decoration: none; }
+        .account-menu a:hover, .account-menu button:hover { background: var(--primary-soft); color: var(--primary); }
+        .account-menu form { border-top: 1px solid var(--border); }
         .cart-wrap { position: relative; }
         .cart-count { position: absolute; top: 1px; right: 0; min-width: 17px; height: 17px; padding: 0 4px; display: grid; place-items: center; border: 2px solid white; border-radius: 999px; background: var(--cta); color: white; font-size: 9px; font-weight: 800; }
         .mini-cart { width: 365px; max-height: min(560px, calc(100vh - 100px)); position: absolute; top: 49px; right: 0; display: none; overflow: auto; border: 1px solid var(--border); border-radius: 13px; background: white; box-shadow: 0 20px 50px rgba(31,41,55,.18); }
@@ -114,7 +120,6 @@
             .search-form { position: absolute; top: 68px; left: 0; width: 100%; padding: 9px 16px; border-bottom: 1px solid var(--border); background: white; }
             .search-form svg { left: 29px; }
             .site-main { padding-top: 60px; }
-            .header-icon.account { display: none; }
             .container { width: min(100% - 28px, 1200px); }
             .mini-cart { position: fixed; top: 69px; right: 12px; width: calc(100% - 24px); max-height: calc(100vh - 90px); }
         }
@@ -143,12 +148,15 @@
                     <input class="search-input" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Buscar por lanche, pizza..." aria-label="Buscar produtos">
                 </form>
                 @auth('web')
-                    <form method="POST" action="{{ route('site.logout') }}">
-                        @csrf
-                        <button class="header-icon account" type="submit" aria-label="Sair da conta" title="Sair da conta de {{ auth('web')->user()->name }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path></svg>
+                    <div class="account-wrap">
+                        <button class="header-icon account" type="button" data-account-toggle aria-label="Abrir menu da conta" aria-expanded="false" title="Conta de {{ auth('web')->user()->name }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
                         </button>
-                    </form>
+                        <div class="account-menu" data-account-menu>
+                            <a href="{{ route('site.orders.index') }}">Meus Pedidos</a>
+                            <form method="POST" action="{{ route('site.logout') }}">@csrf<button type="submit">Sair da conta</button></form>
+                        </div>
+                    </div>
                 @else
                     <a class="header-icon account" href="{{ route('site.login') }}" aria-label="Acessar conta" title="Acessar sua conta">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
@@ -177,6 +185,8 @@
             var notice = document.querySelector('.cart-notice');
             var toggle = document.querySelector('[data-cart-toggle]');
             var miniCart = document.querySelector('[data-mini-cart]');
+            var accountToggle = document.querySelector('[data-account-toggle]');
+            var accountMenu = document.querySelector('[data-account-menu]');
             var timer;
 
             if (toggle && miniCart) {
@@ -189,6 +199,20 @@
                     if (!event.target.closest('.cart-wrap')) {
                         miniCart.classList.remove('open');
                         toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            if (accountToggle && accountMenu) {
+                accountToggle.addEventListener('click', function () {
+                    var open = accountMenu.classList.toggle('open');
+                    accountToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!event.target.closest('.account-wrap')) {
+                        accountMenu.classList.remove('open');
+                        accountToggle.setAttribute('aria-expanded', 'false');
                     }
                 });
             }

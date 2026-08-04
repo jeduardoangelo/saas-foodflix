@@ -17,6 +17,8 @@
             <section class="auth-card" aria-labelledby="login-title">
                 <h2 class="auth-section-title" id="login-title"><span aria-hidden="true">✓</span> Dados de acesso</h2>
 
+                @if (session('status')) <div class="auth-success" role="status">{{ session('status') }}</div> @endif
+
                 @if ($errors->first('email') === 'As credenciais informadas são inválidas.')
                     <div class="auth-alert" role="alert">{{ $errors->first('email') }}</div>
                 @endif
@@ -41,7 +43,7 @@
                     </div>
 
                     <div class="auth-links">
-                        <a href="#" aria-disabled="true" title="Recuperação de senha disponível futuramente">Esqueceu sua senha?</a>
+                        <a href="{{ route('site.password.request') }}">Esqueceu sua senha?</a>
                         <span>Ainda não tem conta? <a href="{{ route('site.register') }}">Cadastre-se</a></span>
                     </div>
 

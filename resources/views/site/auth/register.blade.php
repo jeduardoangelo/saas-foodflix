@@ -35,6 +35,11 @@
                             <input id="email" name="email" type="email" value="{{ old('email') }}" maxlength="255" autocomplete="email" required @if ($errors->has('email')) aria-invalid="true" @endif>
                             @error('email') <p class="field-error">{{ $message }}</p> @enderror
                         </div>
+                        <div class="field">
+                            <label for="phone">Telefone</label>
+                            <input id="phone" name="phone" type="tel" value="{{ old('phone') }}" maxlength="15" inputmode="tel" placeholder="(11) 99999-9999" autocomplete="tel" required @if ($errors->has('phone')) aria-invalid="true" @endif>
+                            @error('phone') <p class="field-error">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                 </section>
 
@@ -114,6 +119,14 @@
                 .replace(/^(\d{3})(\d)/, '$1.$2')
                 .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
                 .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        });
+
+        var phone = document.getElementById('phone');
+        phone.addEventListener('input', function () {
+            var digits = phone.value.replace(/\D/g, '').slice(0, 11);
+            phone.value = digits
+                .replace(/^(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{4,5})(\d{4})$/, '$1-$2');
         });
     })();
 </script>

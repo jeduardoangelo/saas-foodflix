@@ -16,6 +16,7 @@ class CustomerAuthenticationService
                 'name' => $data['name'],
                 'cpf' => $data['cpf'],
                 'email' => $data['email'],
+                'phone' => $data['phone'],
                 'password' => Hash::make($data['password']),
             ]);
 

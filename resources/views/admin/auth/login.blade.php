@@ -147,6 +147,8 @@
             font-size: 13px;
         }
 
+        .success { margin: -7px 0 20px; padding: 11px 13px; border-radius: 8px; background: #f0fdf4; color: #166534; font-size: 13px; }
+
         .forgot-row {
             display: flex;
             justify-content: flex-end;
@@ -213,6 +215,8 @@
             <h1 id="login-title">Painel de Controle</h1>
             <p class="subtitle">Acesse sua conta para gerenciar a loja</p>
 
+            @if (session('status')) <div class="success" role="status">{{ session('status') }}</div> @endif
+
             @if ($errors->has('email') && old('email') && $errors->first('email') === 'As credenciais informadas são inválidas.')
                 <div class="alert" id="email-error" role="alert">{{ $errors->first('email') }}</div>
             @endif
@@ -267,7 +271,7 @@
                 </div>
 
                 <div class="forgot-row">
-                    <a class="forgot-link" href="#" aria-disabled="true" title="Recuperação de senha disponível em uma próxima etapa">Esqueceu sua senha?</a>
+                    <a class="forgot-link" href="{{ route('admin.password.request') }}">Esqueceu sua senha?</a>
                 </div>
 
                 <button class="submit-button" type="submit">Entrar</button>

@@ -55,6 +55,7 @@ class CustomerAuthenticationTest extends TestCase
             'name' => 'Maria da Silva',
             'cpf' => '529.982.247-25',
             'email' => 'cliente@example.com',
+            'phone' => '(11) 99999-1234',
         ]);
         $this->assertDatabaseHas('addresses', [
             'user_id' => $user->id,
@@ -110,6 +111,23 @@ class CustomerAuthenticationTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'cliente@example.com']);
     }
 
+    public function test_registration_rejects_missing_or_invalid_phone(): void
+    {
+        $missing = $this->validRegistrationData();
+        unset($missing['phone']);
+
+        $this->from('/register')->post('/register', $missing)
+            ->assertSessionHasErrors(['phone' => 'Informe o telefone com DDD.']);
+
+        $invalid = $this->validRegistrationData();
+        $invalid['phone'] = '9999-9999';
+
+        $this->from('/register')->post('/register', $invalid)
+            ->assertSessionHasErrors(['phone' => 'Informe um telefone brasileiro válido com DDD.']);
+
+        $this->assertDatabaseMissing('users', ['email' => 'cliente@example.com']);
+    }
+
     public function test_registration_requires_privacy_consent(): void
     {
         $data = $this->validRegistrationData();
@@ -141,6 +159,7 @@ class CustomerAuthenticationTest extends TestCase
             'name' => 'Cliente Existente',
             'cpf' => '529.982.247-25',
             'email' => 'cliente@example.com',
+            'phone' => '(11) 99999-1234',
             'password' => Hash::make('senha-segura'),
         ]);
 
@@ -250,6 +269,7 @@ class CustomerAuthenticationTest extends TestCase
             'name' => 'Maria da Silva',
             'cpf' => '529.982.247-25',
             'email' => 'cliente@example.com',
+            'phone' => '(11) 99999-1234',
             'street' => 'Rua das Flores',
             'number' => '123',
             'neighborhood' => 'Centro',

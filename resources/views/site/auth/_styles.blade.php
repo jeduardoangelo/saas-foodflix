@@ -18,6 +18,7 @@
     .field input[aria-invalid="true"] { border-color: #dc2626; }
     .field-error { margin: 6px 0 0; color: #c62828; font-size: 11px; }
     .auth-alert { margin-bottom: 18px; padding: 12px 14px; border: 1px solid #fecaca; border-radius: 9px; background: #fff1f2; color: #b42318; font-size: 13px; }
+    .auth-success { margin-bottom: 18px; padding: 12px 14px; border: 1px solid #bbf7d0; border-radius: 9px; background: #f0fdf4; color: #166534; font-size: 13px; }
     .auth-actions { margin-top: 25px; }
     .auth-submit { width: 100%; min-height: 47px; border: 0; border-radius: 9px; background: var(--cta); color: white; font-weight: 800; cursor: pointer; box-shadow: 0 8px 20px rgba(232,39,26,.18); }
     .auth-submit:hover { background: var(--cta-dark); }

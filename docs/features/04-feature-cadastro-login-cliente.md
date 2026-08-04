@@ -12,7 +12,7 @@ Permitir que o cliente final crie uma conta e acesse o site autenticado, viabili
 
 **Cadastro:**
 1. Cliente acessa "Cadastre-se" a partir da tela de login
-2. Preenche: nome completo, CPF, email, endereço de entrega (rua, número, bairro, cidade, complemento opcional), senha e confirmação de senha
+2. Preenche: nome completo, CPF, email, telefone, endereço de entrega (rua, número, bairro, cidade, complemento opcional), senha e confirmação de senha
 3. Sistema valida os campos e cria o registro em `users` + `addresses` (documento 2)
 4. Cliente é autenticado automaticamente e redirecionado ao site
 
@@ -31,6 +31,7 @@ Permitir que o cliente final crie uma conta e acesse o site autenticado, viabili
 - Senha exige confirmação idêntica no cadastro
 - Endereço informado no cadastro é salvo como endereço padrão (`is_default = true` em `addresses`)
 - Login incorreto exibe mensagem genérica (não revelar se o erro é de email ou senha, por segurança)
+- Telefone é obrigatório (necessário para contato durante a entrega, conforme observação registrada no planejamento inicial) — formato brasileiro com DDD
 
 ## Critérios de aceite
 - [ ] Cliente consegue se cadastrar com dados válidos e é autenticado automaticamente ao final
@@ -41,6 +42,6 @@ Permitir que o cliente final crie uma conta e acesse o site autenticado, viabili
 
 ## Fora de escopo
 - Login social (Google/Facebook)
-- Recuperação de senha via "Esqueceu sua senha?" (o link aparece no print, mas o fluxo de reset fica para especificação e implementação em uma iteração seguinte, dado o foco do MVP no fluxo de compra)
+- Recuperação de senha — passou a ser coberta pelo documento 17-feature-recuperacao-senha.md
 - Múltiplos endereços por cliente (cadastro/gestão de mais de um endereço) — modelo de dados já suporta (`addresses` é 1—N), mas a tela de gestão de múltiplos endereços não é MVP
 - Verificação de email (`email_verified_at` existe no modelo para uso futuro, não é obrigatória no MVP)
