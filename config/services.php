@@ -30,4 +30,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'payment' => [
+        'driver' => env('PAYMENT_GATEWAY', 'fake'),
+        'fake' => [
+            'approved' => env('FAKE_PAYMENT_APPROVED', true),
+        ],
+    ],
+
 ];

@@ -118,7 +118,7 @@ class CatalogTest extends TestCase
         $this->get("/products/{$deleted->id}")->assertNotFound();
     }
 
-    public function test_product_cards_expose_details_and_non_persistent_cart_actions(): void
+    public function test_product_cards_expose_details_and_cart_actions(): void
     {
         $category = $this->createCategory('Ações');
         $product = $this->createProduct($category, 'Produto com Ações');
@@ -127,9 +127,9 @@ class CatalogTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(route('site.products.show', $product), false);
+        $response->assertSee(route('site.cart.items.store', $product), false);
         $response->assertSee('Ver Detalhes');
         $response->assertSee('Pedir');
-        $response->assertSee('O carrinho será habilitado na próxima etapa.');
     }
 
     public function test_active_scope_returns_only_active_non_deleted_products(): void

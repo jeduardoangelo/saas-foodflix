@@ -63,14 +63,15 @@
                 <div class="purchase">
                     <span class="price-label">Preço unitário</span>
                     <strong class="unit-price">R$ {{ number_format((float) $product->price, 2, ',', '.') }}</strong>
-                    <div class="purchase-row">
+                    <form class="purchase-row" method="POST" action="{{ route('site.cart.items.store', $product) }}">
+                        @csrf
                         <div class="quantity" aria-label="Quantidade">
                             <button type="button" data-quantity-minus aria-label="Diminuir quantidade">−</button>
-                            <input type="number" value="1" min="1" max="99" data-quantity-input aria-label="Quantidade do produto">
+                            <input type="number" name="quantity" value="1" min="1" max="99" data-quantity-input aria-label="Quantidade do produto">
                             <button type="button" data-quantity-plus aria-label="Aumentar quantidade">+</button>
                         </div>
-                        <button class="add-button" type="button" data-cart-preview>Adicionar ao Carrinho</button>
-                    </div>
+                        <button class="add-button" type="submit">Adicionar ao Carrinho</button>
+                    </form>
                     <p class="total-preview">Total para <span data-quantity-label>1 unidade</span>: <strong data-total-price>R$ {{ number_format((float) $product->price, 2, ',', '.') }}</strong></p>
                 </div>
             </div>

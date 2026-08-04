@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -47,6 +48,22 @@ class User extends Authenticatable
     public function addresses(): HasMany
     {
         return $this->hasMany(Address::class);
+    }
+
+    /**
+     * Laravel 8 equivalent of the "hashed" cast available in newer versions.
+     * Existing hashes are preserved to avoid hashing them twice.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setPasswordAttribute($value)
+    {
+        $passwordInfo = password_get_info($value);
+
+        $this->attributes['password'] = $passwordInfo['algo']
+            ? $value
+            : Hash::make($value);
     }
 
     public function orders(): HasMany

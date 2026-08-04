@@ -67,7 +67,32 @@
         .header-icon { width: 41px; height: 41px; position: relative; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #4b5563; cursor: pointer; text-decoration: none; }
         .header-icon:hover { background: var(--primary-soft); color: var(--primary); }
         .header-icon svg { width: 21px; height: 21px; }
+        .cart-wrap { position: relative; }
         .cart-count { position: absolute; top: 1px; right: 0; min-width: 17px; height: 17px; padding: 0 4px; display: grid; place-items: center; border: 2px solid white; border-radius: 999px; background: var(--cta); color: white; font-size: 9px; font-weight: 800; }
+        .mini-cart { width: 365px; max-height: min(560px, calc(100vh - 100px)); position: absolute; top: 49px; right: 0; display: none; overflow: auto; border: 1px solid var(--border); border-radius: 13px; background: white; box-shadow: 0 20px 50px rgba(31,41,55,.18); }
+        .mini-cart.open { display: block; }
+        .mini-cart-header { display: flex; justify-content: space-between; padding: 17px 18px; border-bottom: 1px solid var(--border); }
+        .mini-cart-header strong { font-size: 14px; }
+        .mini-cart-header span { color: var(--muted); font-size: 11px; }
+        .mini-cart-items { padding: 4px 15px; }
+        .mini-cart-item { display: grid; grid-template-columns: 55px minmax(0, 1fr) auto; gap: 11px; padding: 13px 0; }
+        .mini-cart-item + .mini-cart-item { border-top: 1px solid var(--border); }
+        .mini-cart-image { width: 55px; height: 51px; display: grid; place-items: center; overflow: hidden; border-radius: 7px; background: #eff0f2; color: #9ea4ad; }
+        .mini-cart-image img { width: 100%; height: 100%; object-fit: cover; }
+        .mini-cart-copy > strong { display: block; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+        .mini-cart-copy > span { display: block; margin-top: 3px; color: var(--primary); font-size: 11px; font-weight: 750; }
+        .mini-quantity { display: flex; align-items: center; gap: 5px; margin-top: 7px; }
+        .mini-quantity button { width: 23px; height: 23px; padding: 0; border: 1px solid var(--border); border-radius: 5px; background: white; cursor: pointer; }
+        .mini-quantity span { min-width: 18px; text-align: center; font-size: 11px; font-weight: 700; }
+        .mini-cart-side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
+        .mini-cart-side button { padding: 0 3px; border: 0; background: transparent; color: #a0a5ad; cursor: pointer; font-size: 18px; }
+        .mini-cart-side strong { font-size: 11px; }
+        .mini-cart-footer { padding: 16px 18px 18px; border-top: 1px solid var(--border); }
+        .mini-cart-footer div { display: flex; justify-content: space-between; font-size: 13px; }
+        .mini-cart-footer a { min-height: 41px; display: grid; place-items: center; margin-top: 14px; border-radius: 8px; background: var(--cta); color: white; font-size: 12px; font-weight: 800; text-decoration: none; }
+        .mini-cart-empty { padding: 34px 20px; text-align: center; }
+        .mini-cart-empty p { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+        .mini-cart-empty a { color: var(--primary); font-size: 12px; font-weight: 750; text-decoration: none; }
 
         .site-main { min-height: calc(100vh - 150px); }
         .container { width: min(100% - 40px, 1200px); margin: 0 auto; }
@@ -91,6 +116,7 @@
             .site-main { padding-top: 60px; }
             .header-icon.account { display: none; }
             .container { width: min(100% - 28px, 1200px); }
+            .mini-cart { position: fixed; top: 69px; right: 12px; width: calc(100% - 24px); max-height: calc(100vh - 90px); }
         }
     </style>
     @stack('styles')
@@ -106,7 +132,7 @@
             </a>
 
             <nav class="category-nav" aria-label="Categorias">
-                @foreach ($navigationCategories as $navigationCategory)
+                @foreach (($navigationCategories ?? collect()) as $navigationCategory)
                     <a href="{{ route('site.home').'#categoria-'.$navigationCategory->slug }}">{{ $navigationCategory->name }}</a>
                 @endforeach
             </nav>
@@ -116,13 +142,25 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
                     <input class="search-input" name="q" type="search" value="{{ request('q') }}" maxlength="100" placeholder="Buscar por lanche, pizza..." aria-label="Buscar produtos">
                 </form>
-                <button class="header-icon account" type="button" aria-label="Conta do cliente" title="Login do cliente será implementado em uma próxima etapa">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
-                </button>
-                <button class="header-icon" type="button" data-cart-preview aria-label="Carrinho de compras" title="Carrinho será implementado na próxima etapa">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h2l2.2 11h10.7l2-7H6"></path><circle cx="9" cy="19" r="1.5"></circle><circle cx="18" cy="19" r="1.5"></circle></svg>
-                    <span class="cart-count">0</span>
-                </button>
+                @auth('web')
+                    <form method="POST" action="{{ route('site.logout') }}">
+                        @csrf
+                        <button class="header-icon account" type="submit" aria-label="Sair da conta" title="Sair da conta de {{ auth('web')->user()->name }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path></svg>
+                        </button>
+                    </form>
+                @else
+                    <a class="header-icon account" href="{{ route('site.login') }}" aria-label="Acessar conta" title="Acessar sua conta">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+                    </a>
+                @endauth
+                <div class="cart-wrap">
+                    <button class="header-icon" type="button" data-cart-toggle aria-label="Abrir carrinho de compras" aria-expanded="{{ session('cart_open') ? 'true' : 'false' }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3h2l2.2 11h10.7l2-7H6"></path><circle cx="9" cy="19" r="1.5"></circle><circle cx="18" cy="19" r="1.5"></circle></svg>
+                        <span class="cart-count">{{ $cartSummary['item_count'] }}</span>
+                    </button>
+                    @include('site.cart._mini')
+                </div>
             </div>
         </div>
     </header>
@@ -132,19 +170,41 @@
     </main>
 
     <footer class="site-footer">&copy; {{ date('Y') }} Foodflix. Sabor e praticidade em cada pedido.</footer>
-    <div class="cart-notice" role="status" aria-live="polite">O carrinho será habilitado na próxima etapa.</div>
+    <div class="cart-notice {{ session('cart_message') ? 'visible' : '' }}" role="status" aria-live="polite">{{ session('cart_message', 'O checkout será implementado na próxima etapa.') }}</div>
 
     <script>
         (function () {
             var notice = document.querySelector('.cart-notice');
+            var toggle = document.querySelector('[data-cart-toggle]');
+            var miniCart = document.querySelector('[data-mini-cart]');
             var timer;
-            document.querySelectorAll('[data-cart-preview]').forEach(function (button) {
+
+            if (toggle && miniCart) {
+                toggle.addEventListener('click', function () {
+                    var open = miniCart.classList.toggle('open');
+                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+
+                document.addEventListener('click', function (event) {
+                    if (!event.target.closest('.cart-wrap')) {
+                        miniCart.classList.remove('open');
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            document.querySelectorAll('[data-checkout-preview]').forEach(function (button) {
                 button.addEventListener('click', function () {
                     clearTimeout(timer);
+                    notice.textContent = 'O checkout será implementado na próxima etapa.';
                     notice.classList.add('visible');
                     timer = setTimeout(function () { notice.classList.remove('visible'); }, 2800);
                 });
             });
+
+            if (notice.classList.contains('visible')) {
+                timer = setTimeout(function () { notice.classList.remove('visible'); }, 2800);
+            }
         })();
     </script>
     @stack('scripts')

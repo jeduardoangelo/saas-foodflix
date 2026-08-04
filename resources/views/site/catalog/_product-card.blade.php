@@ -16,7 +16,11 @@
             <strong>R$ {{ number_format((float) $product->price, 2, ',', '.') }}</strong>
             <div class="product-actions">
                 <a class="details-button" href="{{ route('site.products.show', $product) }}">Ver Detalhes</a>
-                <button class="order-button" type="button" data-cart-preview data-product-id="{{ $product->id }}">Pedir</button>
+                <form method="POST" action="{{ route('site.cart.items.store', $product) }}">
+                    @csrf
+                    <input type="hidden" name="quantity" value="1">
+                    <button class="order-button" type="submit">Pedir</button>
+                </form>
             </div>
         </div>
     </div>
