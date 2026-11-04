@@ -43,6 +43,25 @@ class CheckoutService
     public function placeOrder(User $user, array $data): Order
     {
         $cart = $this->requireCart();
+        $order = $this->createOrder($user, $data, $cart);
+        $this->cart->clear();
+
+        return $order;
+    }
+
+    public function placeOrderFromItems(User $user, array $data): Order
+    {
+        $cart = $this->cart->summaryForItems($data['items']);
+
+        if ($cart['is_empty']) {
+            throw new EmptyCartException('Seu carrinho está vazio. Adicione produtos antes de finalizar.');
+        }
+
+        return $this->createOrder($user, $data, $cart);
+    }
+
+    private function createOrder(User $user, array $data, array $cart): Order
+    {
         $settings = StoreSetting::current();
         $isDelivery = $data['delivery_method'] === 'entrega';
         $deliveryFeeCents = $isDelivery ? $this->moneyToCents($settings->delivery_fee) : 0;
@@ -95,8 +114,6 @@ class CheckoutService
 
             return $order;
         });
-
-        $this->cart->clear();
 
         return $order->load(['items', 'payment']);
     }

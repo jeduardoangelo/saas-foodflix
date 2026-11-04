@@ -5,17 +5,24 @@
 @push('styles')
 <style>
     .hero { padding: 28px 0 8px; }
-    .hero-banner { min-height: 285px; position: relative; display: flex; align-items: center; overflow: hidden; padding: 42px 54px; border-radius: 18px; background: linear-gradient(120deg, #f04e23 0%, #ef3b22 56%, #d92317 100%); color: white; box-shadow: 0 18px 45px rgba(232,39,26,.2); }
+    .hero-banner { min-height: 360px; position: relative; overflow: hidden; border-radius: 18px; background: #8f2118; color: white; box-shadow: 0 18px 45px rgba(232,39,26,.2); }
+    .hero-slide { position: absolute; inset: 0; display: flex; align-items: center; padding: 42px 54px; visibility: hidden; opacity: 0; transition: opacity .55s ease, visibility .55s; }
+    .hero-slide.is-active { visibility: visible; opacity: 1; }
+    .hero-image, .hero-overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-image { object-fit: cover; object-position: center; }
+    .hero-overlay { background: linear-gradient(90deg, rgba(46,10,8,.89) 0%, rgba(66,13,9,.76) 40%, rgba(70,13,8,.08) 100%); }
     .hero-copy { position: relative; z-index: 2; width: min(100%, 540px); }
     .hero-eyebrow { display: inline-block; margin-bottom: 13px; padding: 6px 11px; border-radius: 999px; background: rgba(255,255,255,.16); font-size: 11px; font-weight: 750; letter-spacing: .5px; text-transform: uppercase; }
     .hero h1 { max-width: 520px; margin: 0 0 12px; font-size: clamp(32px, 4.8vw, 55px); line-height: 1.02; letter-spacing: -1.8px; }
     .hero p { max-width: 455px; margin: 0 0 24px; color: rgba(255,255,255,.88); font-size: 15px; line-height: 1.55; }
     .hero-link { min-height: 44px; display: inline-flex; align-items: center; padding: 0 18px; border-radius: 8px; background: white; color: var(--primary-dark); font-size: 13px; font-weight: 800; text-decoration: none; }
-    .hero-art { position: absolute; right: 5%; bottom: -18%; width: 320px; height: 320px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.1); transform: rotate(-8deg); }
-    .hero-art svg { width: 190px; height: 190px; opacity: .95; }
-    .hero-bubble { position: absolute; border-radius: 50%; background: rgba(255,255,255,.11); }
-    .hero-bubble.one { width: 60px; height: 60px; top: 26px; right: 31%; }
-    .hero-bubble.two { width: 24px; height: 24px; top: 44px; right: 8%; }
+    .hero-controls { position: absolute; z-index: 4; right: 25px; bottom: 22px; display: flex; align-items: center; gap: 9px; }
+    .hero-arrow { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.52); border-radius: 50%; background: rgba(30,10,8,.3); color: white; cursor: pointer; }
+    .hero-arrow:hover, .hero-arrow:focus-visible { background: rgba(255,255,255,.2); }
+    .hero-arrow svg { width: 17px; height: 17px; }
+    .hero-dots { display: flex; align-items: center; gap: 7px; margin: 0 3px; }
+    .hero-dot { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.55); cursor: pointer; }
+    .hero-dot[aria-current="true"] { width: 24px; border-radius: 999px; background: white; }
 
     .catalog-section { padding-top: 44px; scroll-margin-top: 90px; }
     .section-title { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 21px; }
@@ -48,26 +55,45 @@
     .empty-catalog { margin-top: 35px; padding: 60px 25px; border: 1px dashed #d5d8dd; border-radius: 13px; background: white; color: var(--muted); text-align: center; }
     .empty-catalog h2 { margin: 0 0 8px; color: var(--text); font-size: 20px; }
 
-    @media (max-width: 1020px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .hero-art { right: -4%; } }
-    @media (max-width: 760px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-banner { min-height: 320px; padding: 35px 28px; } .hero-copy { width: 75%; } .hero-art { right: -25%; opacity: .7; } }
-    @media (max-width: 500px) { .product-grid { grid-template-columns: 1fr; } .hero-copy { width: 100%; } .hero-art { display: none; } .section-title { align-items: flex-start; flex-direction: column; } }
+    @media (max-width: 1020px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 760px) { .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .hero-banner { min-height: 340px; } .hero-slide { padding: 35px 28px 65px; } .hero-copy { width: 78%; } .hero-overlay { background: linear-gradient(90deg, rgba(46,10,8,.9), rgba(66,13,9,.72) 58%, rgba(70,13,8,.28)); } }
+    @media (max-width: 500px) { .product-grid { grid-template-columns: 1fr; } .hero-copy { width: 100%; } .hero-banner { min-height: 390px; } .hero-image { object-position: 62% center; } .hero-controls { right: 16px; bottom: 15px; } .section-title { align-items: flex-start; flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { .hero-slide, .product-card, .product-card-image img { transition: none; } }
 </style>
 @endpush
 
 @section('content')
     @if (! $search)
+        @php
+            $heroSlides = [
+                ['eyebrow' => 'Feito na hora', 'title' => 'Seu pedido favorito, do seu jeito.', 'description' => 'Lanches preparados na hora para deixar o seu dia mais saboroso.', 'link' => '#catalogo', 'label' => 'Conhecer o cardápio', 'image' => 'images/hero-burger.png'],
+                ['eyebrow' => 'Para compartilhar', 'title' => 'Uma boa pizza sempre reúne todo mundo.', 'description' => 'Sabores marcantes para transformar qualquer momento em uma ocasião especial.', 'link' => '#categoria-pizzas', 'label' => 'Explorar pizzas', 'image' => 'images/hero-pizza.png'],
+                ['eyebrow' => 'Clássico brasileiro', 'title' => 'Pastel quentinho, sabor de verdade.', 'description' => 'Crocante por fora, recheado por dentro e perfeito para matar a fome.', 'link' => '#categoria-pasteis', 'label' => 'Ver pastéis', 'image' => 'images/hero-pastel.png'],
+            ];
+        @endphp
         <section class="hero">
             <div class="container">
-                <div class="hero-banner">
-                    <div class="hero-copy">
-                        <span class="hero-eyebrow">Feito na hora</span>
-                        <h1>Seu pedido favorito, do seu jeito.</h1>
-                        <p>Explore o cardápio Foodflix e escolha entre lanches, pizzas, pastéis e bebidas preparados para deixar o seu dia mais saboroso.</p>
-                        <a class="hero-link" href="#catalogo">Conhecer o cardápio</a>
-                    </div>
-                    <span class="hero-bubble one"></span><span class="hero-bubble two"></span>
-                    <div class="hero-art" aria-hidden="true">
-                        <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M28 101h144"></path><path d="M43 101a57 57 0 0 1 114 0"></path><path d="M100 44V27"></path><path d="M35 130h130"></path><path d="M50 130v34h100v-34"></path><path d="M75 70c10-9 39-9 50 0"></path></svg>
+                <div class="hero-banner" data-hero-carousel role="region" aria-roledescription="carousel" aria-label="Destaques do cardápio">
+                    @foreach ($heroSlides as $slide)
+                        <article class="hero-slide {{ $loop->first ? 'is-active' : '' }}" data-hero-slide role="group" aria-roledescription="slide" aria-label="{{ $loop->iteration }} de {{ count($heroSlides) }}" aria-hidden="{{ $loop->first ? 'false' : 'true' }}">
+                            <img class="hero-image" src="{{ asset($slide['image']) }}" alt="" @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                            <div class="hero-overlay" aria-hidden="true"></div>
+                            <div class="hero-copy">
+                                <span class="hero-eyebrow">{{ $slide['eyebrow'] }}</span>
+                                <h1>{{ $slide['title'] }}</h1>
+                                <p>{{ $slide['description'] }}</p>
+                                <a class="hero-link" href="{{ $slide['link'] }}">{{ $slide['label'] }}</a>
+                            </div>
+                        </article>
+                    @endforeach
+                    <div class="hero-controls" aria-label="Controles do carrossel">
+                        <button class="hero-arrow" type="button" data-hero-prev aria-label="Destaque anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+                        <div class="hero-dots" role="group" aria-label="Escolher destaque">
+                            @foreach ($heroSlides as $index => $slide)
+                                <button class="hero-dot" type="button" data-hero-dot="{{ $index }}" aria-label="Mostrar destaque {{ $loop->iteration }}" aria-current="{{ $loop->first ? 'true' : 'false' }}"></button>
+                            @endforeach
+                        </div>
+                        <button class="hero-arrow" type="button" data-hero-next aria-label="Próximo destaque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
                     </div>
                 </div>
             </div>
@@ -75,7 +101,7 @@
 
         <section class="catalog-section container" aria-labelledby="featured-title">
             <div class="section-title">
-                <div><h2 id="featured-title">Os Mais Pedidos</h2><p>Uma seleção especial de favoritos do Foodflix.</p></div>
+                <div><h2 id="featured-title">Os Mais Pedidos</h2><p>Os favoritos dos nossos clientes, com base nos pedidos aprovados.</p></div>
             </div>
             @if ($featuredProducts->isNotEmpty())
                 <div class="product-grid">
@@ -85,7 +111,7 @@
                 </div>
             @else
                 <div class="empty-catalog" style="margin-top: 0; padding: 30px 20px;">
-                    <p style="margin: 0;">Os produtos em destaque serão exibidos aqui em breve.</p>
+                    <p style="margin: 0;">Os mais pedidos aparecerão aqui assim que houver pedidos aprovados.</p>
                 </div>
             @endif
         </section>
@@ -117,3 +143,59 @@
         @endforelse
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        var carousel = document.querySelector('[data-hero-carousel]');
+
+        if (!carousel) return;
+
+        var slides = Array.prototype.slice.call(carousel.querySelectorAll('[data-hero-slide]'));
+        var dots = Array.prototype.slice.call(carousel.querySelectorAll('[data-hero-dot]'));
+        var activeIndex = 0;
+        var timer;
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function showSlide(index) {
+            activeIndex = (index + slides.length) % slides.length;
+            slides.forEach(function (slide, slideIndex) {
+                var active = slideIndex === activeIndex;
+                slide.classList.toggle('is-active', active);
+                slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+            });
+            dots.forEach(function (dot, dotIndex) {
+                dot.setAttribute('aria-current', dotIndex === activeIndex ? 'true' : 'false');
+            });
+        }
+
+        function startTimer() {
+            window.clearInterval(timer);
+            if (!reducedMotion) timer = window.setInterval(function () { showSlide(activeIndex + 1); }, 6000);
+        }
+
+        carousel.querySelector('[data-hero-prev]').addEventListener('click', function () {
+            showSlide(activeIndex - 1);
+            startTimer();
+        });
+        carousel.querySelector('[data-hero-next]').addEventListener('click', function () {
+            showSlide(activeIndex + 1);
+            startTimer();
+        });
+        dots.forEach(function (dot) {
+            dot.addEventListener('click', function () {
+                showSlide(Number(dot.getAttribute('data-hero-dot')));
+                startTimer();
+            });
+        });
+        carousel.addEventListener('mouseenter', function () { window.clearInterval(timer); });
+        carousel.addEventListener('mouseleave', startTimer);
+        carousel.addEventListener('focusin', function () { window.clearInterval(timer); });
+        carousel.addEventListener('focusout', function (event) {
+            if (!carousel.contains(event.relatedTarget)) startTimer();
+        });
+
+        startTimer();
+    })();
+</script>
+@endpush

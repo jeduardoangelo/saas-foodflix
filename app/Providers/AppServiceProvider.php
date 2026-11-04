@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        JsonResource::withoutWrapping();
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }

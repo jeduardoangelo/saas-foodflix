@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use App\Http\Resources\Api\ErrorResource;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -88,6 +89,17 @@ class RouteServiceProvider extends ServiceProvider
                     429,
                     $headers
                 );
+            });
+        });
+
+        RateLimiter::for('api-login', function (Request $request) {
+            return Limit::perMinute(5)->by(
+                Str::lower((string) $request->input('email')).'|'.$request->ip()
+            )->response(function (Request $request, array $headers) {
+                return (new ErrorResource([
+                    'code' => 'too_many_requests',
+                    'message' => 'Muitas tentativas de login. Aguarde um minuto e tente novamente.',
+                ]))->response()->setStatusCode(429)->withHeaders($headers);
             });
         });
     }

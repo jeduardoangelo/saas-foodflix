@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\StoreSettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,9 @@ Route::middleware('auth:admin')->group(function () {
     Route::redirect('/', '/admin/dashboard')->name('index');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/orders', [DashboardController::class, 'index'])->name('orders.index');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/orders.xlsx', [ReportController::class, 'exportOrders'])->name('reports.orders.export');
+    Route::get('/reports/customers.xlsx', [ReportController::class, 'exportCustomers'])->name('reports.customers.export');
     Route::patch('/orders/{order}/advance', [OrderStatusController::class, 'advance'])
         ->where('order', '[0-9]+')
         ->name('orders.advance');

@@ -54,7 +54,29 @@ class CartService
 
     public function summary(): array
     {
-        $storedItems = $this->storedItems();
+        return $this->summarize($this->storedItems(), true);
+    }
+
+    /**
+     * Build the same authoritative cart summary for a client-side mobile cart.
+     *
+     * @param  array<int, array{product_id:int, quantity:int}>  $requestedItems
+     */
+    public function summaryForItems(array $requestedItems): array
+    {
+        $items = [];
+
+        foreach ($requestedItems as $item) {
+            $productId = (int) $item['product_id'];
+            $quantity = (int) $item['quantity'];
+            $items[$productId] = min(self::MAX_QUANTITY, $quantity);
+        }
+
+        return $this->summarize($items, false);
+    }
+
+    private function summarize(array $storedItems, bool $synchronizeSession): array
+    {
 
         if ($storedItems === []) {
             return $this->emptySummary();
@@ -90,7 +112,7 @@ class CartService
             ];
         }
 
-        if ($validStoredItems !== $storedItems) {
+        if ($synchronizeSession && $validStoredItems !== $storedItems) {
             $this->store($validStoredItems);
         }
 

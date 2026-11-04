@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Models\Admin;
+use App\Models\Address;
+use App\Policies\AddressPolicy;
 use App\Policies\OrderPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Order::class => OrderPolicy::class,
+        Address::class => AddressPolicy::class,
     ];
 
     /**
